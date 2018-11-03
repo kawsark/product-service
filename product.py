@@ -25,7 +25,11 @@ def connect_to_db():
         # try default connection settings
         client = MongoClient()
     else:
-        client = MongoClient(db_addr, db_port)
+        if not db_pw or not db_username:
+            client = MongoClient(db_addr, db_port)
+        else:
+            client = MongoClient(db_addr, db_port, username=db_username, password=db_pw)
+
     return client
 
 db_client = connect_to_db()
