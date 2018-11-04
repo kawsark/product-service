@@ -47,6 +47,22 @@ def get_products():
     res = get_products_from_db()
     return jsonify(res)
 
+@app.route("/product/metadata", methods=['GET'])
+def get_metadata():
+    db_username = os.environ.get(DB_USER)
+    db_pw = os.environ.get(DB_PW)
+
+    m = ['X'] * (len(db_pw)-6)
+    mask = ''.join(m)
+    meta_pw = mask + db_pw[len(db_pw)-6:]
+
+    metadata_dict = {
+     "DB_USER": db_username,
+     "DB_PW_last_6": meta_pw
+    }
+
+    return jsonify(metadata_dict)
+
 @app.route("/product/healthz", methods=['GET'])
 def get_health():
     return "OK"
