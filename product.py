@@ -31,7 +31,7 @@ def connect_to_db():
     else:
         db_username = os.environ.get(DB_USER)
         db_pw = os.environ.get(DB_PW)
-            
+
     if not db_addr or not db_port:
         # try default connection settings
         client = MongoClient()
@@ -61,7 +61,7 @@ def get_products():
 @app.route("/product/metadata", methods=['GET'])
 def get_metadata():
     global mongo_creds
-    
+
     if mongo_creds:
         db_username = mongo_creds[0]
         db_pw = mongo_creds[1]
@@ -84,8 +84,24 @@ def get_metadata():
 def get_health():
     return "OK"
 
+#prints a message with state and timestamp
+def tprint(msg):
+    now = datetime.datetime.now()
+    t = now.strftime("%y-%m-%d %H:%M:%S")
+    print("[%s] %s" % (str(t),msg))
+
 def get_products_from_db():
-    return [rec for rec in db_client[DB_NAME][COL_NAME].find({}, {'_id': False})]
+    try:
+        return [rec for rec in db_client[DB_NAME][COL_NAME].find({}, {'_id': False})]
+
+    except Exception as e:
+        tprint(str(e))
+        tprint("Retrying once -->")
+        traceback.print_exc()
+
+        global db_client
+        db_client = connect_to_db()
+        return [rec for rec in db_client[DB_NAME][COL_NAME].find({}, {'_id': False})]
 
 if __name__ == '__main__':
     PORT = os.environ.get(PRODUCT_PORT)
