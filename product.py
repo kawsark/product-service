@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from vaultawsec2 import get_mongo_creds
 
 import os
+import datetime
 
 DB_ADDR = 'DB_ADDR'
 DB_PORT = 'DB_PORT'
