@@ -21,15 +21,16 @@ mongo_creds = None
 def connect_to_db():
     db_addr = os.environ.get(DB_ADDR)
     db_port = int(os.environ.get(DB_PORT))
-    mongo_creds = get_mongo_creds()
 
     global mongo_creds
-    db_username = os.environ.get(DB_USER)
-    db_pw = os.environ.get(DB_PW)
+    mongo_creds = get_mongo_creds()
 
     if mongo_creds:
         db_username = mongo_creds[0]
         db_pw = mongo_creds[1]
+    else:
+        db_username = os.environ.get(DB_USER)
+        db_pw = os.environ.get(DB_PW)
             
     if not db_addr or not db_port:
         # try default connection settings
