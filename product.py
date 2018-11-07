@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import jsonify
 from pymongo import MongoClient
+from vaultawsec2 import get_mongo_creds
 
 import os
 
@@ -15,12 +16,21 @@ COL_NAME = 'products'
 PRODUCT_PORT = 'PRODUCT_PORT'
 PRODUCT_ADDR = 'PRODUCT_ADDR'
 
+mongo_creds = None
+
 def connect_to_db():
     db_addr = os.environ.get(DB_ADDR)
     db_port = int(os.environ.get(DB_PORT))
+    mongo_creds = get_mongo_creds()
+
+    global mongo_creds
     db_username = os.environ.get(DB_USER)
     db_pw = os.environ.get(DB_PW)
 
+    if mongo_creds:
+        db_username = mongo_creds[0]
+        db_pw = mongo_creds[1]
+            
     if not db_addr or not db_port:
         # try default connection settings
         client = MongoClient()
@@ -49,8 +59,14 @@ def get_products():
 
 @app.route("/product/metadata", methods=['GET'])
 def get_metadata():
-    db_username = os.environ.get(DB_USER)
-    db_pw = os.environ.get(DB_PW)
+    global mongo_creds
+    
+    if mongo_creds:
+        db_username = mongo_creds[0]
+        db_pw = mongo_creds[1]
+    else:
+        db_username = os.environ.get(DB_USER)
+        db_pw = os.environ.get(DB_PW)
 
     m = ['X'] * (len(db_pw)-6)
     mask = ''.join(m)
