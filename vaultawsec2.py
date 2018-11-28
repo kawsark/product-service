@@ -17,7 +17,6 @@ TOKEN_NONCE_PATH = os.getenv("WP_VAULT_TOKEN_NONCE_PATH", "/tmp/.vault-token-met
 EC2_METADATA_URL_BASE = "http://169.254.169.254"
 AWS_EC2_NONCE = os.environ.get("AWS_EC2_NONCE")
 AWS_EC2_ROLE = os.environ.get("AWS_EC2_ROLE")
-VAULT_SECRET_PATH = os.environ.get("VAULT_SECRET_PATH")
 
 def load_aws_ec2_pkcs7_string(metadata_url_base=EC2_METADATA_URL_BASE):
     """
@@ -157,7 +156,7 @@ def get_vault_client(vault_url=VAULT_URL, certs=VAULT_CERTS, verify_certs=True, 
             verify=False,
         )
 
-    resp = auth_ec2(vault_client,nonce=AWS_EC2_NONCE,role=AWS_EC2_ROLE)
+    resp = auth_ec2(vault_client,nonce=AWS_EC2_NONCE,role=ec2_role)
     logger.debug("Vault response from AWS EC2 Auth: %s" % resp)
 
     token = load_vault_token(resp)
@@ -165,13 +164,13 @@ def get_vault_client(vault_url=VAULT_URL, certs=VAULT_CERTS, verify_certs=True, 
     
     return vault_client
 
-def get_mongo_creds():
+def get_mongo_creds(product_config):
     result = None
     logging.basicConfig(level=logging.DEBUG)
-    vault_client = get_vault_client(verify_certs=False)
+    vault_client = get_vault_client(verify_certs=False,ec2_role=product_config['AWS_EC2_ROLE'])
 
     if vault_client.is_authenticated():
-        resp = vault_client.read(VAULT_SECRET_PATH)
+        resp = vault_client.read(product_config['VAULT_SECRET_PATH'])
         logger.debug("obtained response of type: %s and content: %s" % (type(resp),resp))
 
         if 'data' in resp:
