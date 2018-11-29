@@ -42,6 +42,8 @@ prods = [{ 'inv_id': 1, 'name':'jncos', 'cost':35.57, 'img':None},
          { 'inv_id': 3, 'name':'pooka shell necklace', 'cost':12.37, 'img':None},
          { 'inv_id': 4, 'name':'shiny shirt', 'cost':17.95, 'img':None}]
 
+app = Flask(__name__)
+
 @app.route("/product", methods=['GET'])
 def get_products():
     res = get_products_from_db()
@@ -121,7 +123,6 @@ if __name__ == '__main__':
         db_client = connect_to_db()
 
         # Start Flask:
-        app = Flask(__name__)
         app.run(host=product_config['PRODUCT_ADDR'], port=product_config['PRODUCT_PORT'])
 
     except Exception as e:
